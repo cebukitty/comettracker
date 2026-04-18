@@ -181,6 +181,31 @@ hr.div{border:none;border-top:0.5px solid rgba(100,180,255,0.1);max-width:900px;
   .nav{padding:14px 16px}
   .nav-links{gap:14px}
 }
+
+/* ORRERY SIMULATION */
+.orrery-section{max-width:900px;margin:0 auto;padding:56px 32px}
+.orrery-wrap{background:rgba(2,8,22,0.95);border:0.5px solid rgba(100,180,255,0.22);border-radius:16px;overflow:hidden}
+.orrery-toolbar{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:0.5px solid rgba(100,180,255,0.12);flex-wrap:wrap;background:rgba(3,10,28,0.8)}
+.orrery-toolbar-title{font-size:12px;font-weight:500;color:#7ec8ff;letter-spacing:0.06em;text-transform:uppercase;margin-right:4px}
+.orrery-btn{background:rgba(10,30,70,0.8);border:0.5px solid rgba(100,180,255,0.28);border-radius:7px;padding:6px 14px;color:#7ec8ff;font-size:12px;cursor:pointer;transition:all 0.2s;white-space:nowrap}
+.orrery-btn:hover{background:rgba(20,55,120,0.9);border-color:rgba(126,200,255,0.55)}
+.orrery-btn.accent{border-color:rgba(245,200,66,0.45);color:#f5c842}
+.orrery-btn.accent:hover{background:rgba(50,40,10,0.6);border-color:rgba(245,200,66,0.7)}
+.orrery-select{background:rgba(10,30,70,0.8);border:0.5px solid rgba(100,180,255,0.28);border-radius:7px;padding:6px 10px;color:#7ec8ff;font-size:12px;cursor:pointer;outline:none}
+.orrery-scrubber-row{display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:0.5px solid rgba(100,180,255,0.1);background:rgba(2,8,22,0.6)}
+.orrery-scrubber-label{font-size:10px;color:rgba(150,200,255,0.45);letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap}
+#orreryScrubber{flex:1;accent-color:#7ec8ff;height:3px;cursor:pointer}
+.orrery-canvas-wrap{position:relative}
+#orreryCanvas{display:block;width:100%}
+.orrery-status-bar{padding:8px 18px;background:rgba(2,8,22,0.8);border-top:0.5px solid rgba(100,180,255,0.08);display:flex;align-items:center;gap:8px}
+.orrery-status-dot{width:6px;height:6px;border-radius:50%;background:#4ddb8a;flex-shrink:0;animation:pulse 1.4s ease-in-out infinite}
+#orreryStatus{font-size:11px;color:rgba(126,200,255,0.7)}
+.orrery-badges{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.orrery-badge{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(126,200,255,0.08);border:0.5px solid rgba(126,200,255,0.18);color:rgba(150,200,255,0.55)}
+.orrery-legend{display:flex;gap:16px;padding:10px 18px;border-top:0.5px solid rgba(100,180,255,0.08);flex-wrap:wrap}
+.orrery-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(180,220,255,0.55)}
+.orrery-legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.orrery-date-range{font-size:10px;color:rgba(150,200,255,0.35);display:flex;gap:16px;padding:0 18px 10px}
 </style>
 </head>
 <body>
@@ -190,6 +215,7 @@ hr.div{border:none;border-top:0.5px solid rgba(100,180,255,0.1);max-width:900px;
   <div class="nav-links">
     <a href="#tracker">Tracker</a>
     <a href="#gallery">Photos</a>
+    <a href="#orrery">Orrery</a>
     <a href="#orbit">Orbit</a>
     <a href="#observe">Observe</a>
     <a href="#news">News</a>
@@ -293,6 +319,67 @@ hr.div{border:none;border-top:0.5px solid rgba(100,180,255,0.1);max-width:900px;
 
   <div class="gallery-strip" id="galleryStrip"></div>
 </div>
+
+
+<hr class="div">
+
+<!-- ORRERY SIMULATION -->
+<div class="orrery-section" id="orrery">
+  <div class="section-label">Solar system simulation</div>
+  <div class="section-title">Orbital trajectory</div>
+  <div class="section-sub">Live 2D orrery showing comet R3's position relative to the planets &mdash; data from <a href="https://ssd.jpl.nasa.gov/horizons/" target="_blank" rel="noopener" style="color:#7ec8ff">NASA/JPL Horizons</a> vector ephemeris, heliocentric ecliptic J2000 frame.</div>
+
+  <div class="orrery-wrap">
+    <div class="orrery-toolbar">
+      <span class="orrery-toolbar-title">Orrery</span>
+      <button class="orrery-btn" id="orreryPlayBtn">&#9654; Play</button>
+      <button class="orrery-btn" id="orreryTodayBtn">&#9673; Today</button>
+      <button class="orrery-btn accent" id="orreryPeriBtn">&#9650; Perihelion Apr 19</button>
+      <select class="orrery-select" id="orrerySpeed" title="Simulation speed">
+        <option value="1">1 day/frame</option>
+        <option value="3">3 days/frame</option>
+        <option value="7" selected>7 days/frame</option>
+        <option value="14">14 days/frame</option>
+        <option value="30">30 days/frame</option>
+      </select>
+    </div>
+
+    <div class="orrery-scrubber-row">
+      <span class="orrery-scrubber-label">Sep 2025</span>
+      <input type="range" id="orreryScrubber" min="0" max="100" value="40" step="0.1">
+      <span class="orrery-scrubber-label">Aug 2026</span>
+    </div>
+
+    <div class="orrery-canvas-wrap">
+      <canvas id="orreryCanvas" height="480"></canvas>
+    </div>
+
+    <div class="orrery-legend">
+      <div class="orrery-legend-item"><div class="orrery-legend-dot" style="background:#7ec8ff"></div>C/2025 R3 PanSTARRS</div>
+      <div class="orrery-legend-item"><div class="orrery-legend-dot" style="background:#4fa3e0"></div>Earth</div>
+      <div class="orrery-legend-item"><div class="orrery-legend-dot" style="background:#d4634a"></div>Mars</div>
+      <div class="orrery-legend-item"><div class="orrery-legend-dot" style="background:#c8a87a"></div>Jupiter</div>
+      <div class="orrery-legend-item" style="color:rgba(245,200,66,0.7)">&#9670; Perihelion marker</div>
+      <div class="orrery-legend-item" style="color:rgba(77,219,138,0.7)">&#9670; Earth closest approach</div>
+    </div>
+    <div class="orrery-date-range">
+      <span>Simulation range: Sep 1, 2025 &rarr; Aug 1, 2026</span>
+      <span>Drag the timeline slider or press Play to animate</span>
+    </div>
+
+    <div class="orrery-status-bar">
+      <div class="orrery-status-dot"></div>
+      <span id="orreryStatus">Initializing&hellip;</span>
+      <div class="orrery-badges">
+        <span class="orrery-badge">NASA/JPL Horizons</span>
+        <span class="orrery-badge">VECTORS ephemeris</span>
+        <span class="orrery-badge">Ecliptic J2000</span>
+        <span class="orrery-badge">Heliocentric</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <hr class="div">
 
@@ -880,6 +967,635 @@ showDate(0);
 // Auto-refresh ephemeris every 5 min
 setInterval(refreshEphem,5*60*1000);
 
+
+
+// ── ORRERY MODULE ──
+// ── ORRERY: 2D Solar System Simulation ──
+// Data: NASA/JPL Horizons VECTORS ephemeris (heliocentric, ecliptic J2000)
+// Renders: Canvas 2D, animated, time-scrubbable
+
+(function() {
+
+// ── CONFIG ──
+var AU = 1; // 1 AU = base unit
+var FETCH_START = '2025-09-01';
+var FETCH_STOP  = '2026-08-01';
+var FETCH_STEP  = '4d'; // every 4 days = ~90 points
+
+var BODIES = [
+  { id:"199", name:"Mercury", color:"#b0b0b0", r:3,  orbitColor:"rgba(176,176,176,0.25)" },
+  { id:"299", name:"Venus",   color:"#e8c97a", r:4,  orbitColor:"rgba(232,201,122,0.25)" },
+  { id:"399", name:"Earth",   color:"#4fa3e0", r:5,  orbitColor:"rgba(79,163,224,0.3)"  },
+  { id:"499", name:"Mars",    color:"#d4634a", r:4,  orbitColor:"rgba(212,99,74,0.25)"   },
+  { id:"599", name:"Jupiter", color:"#c8a87a", r:9,  orbitColor:"rgba(200,168,122,0.2)"  },
+];
+
+var COMET = { id:"'DES=C/2025 R3;CAP'", name:"C/2025 R3", color:"#7ec8ff", tailColor:"rgba(126,200,255,0.4)" };
+
+// Known key dates (Julian Date)
+var PERIHELION_DATE = new Date('2026-04-19T00:00:00Z');
+var EARTH_CLOSE_DATE = new Date('2026-04-26T00:00:00Z');
+var TODAY = new Date();
+
+// ── STATE ──
+var cometPoints = [];    // [{t, x, y, z, dist}]
+var planetData  = {};    // {id: [{t, x, y}]}
+var simDate     = new Date(TODAY);
+var isPlaying   = false;
+var playSpeed   = 1;     // days per frame
+var animFrame   = null;
+var dataLoaded  = false;
+var loadErrors  = 0;
+
+// ── CANVAS ──
+var canvas, ctx, W, H, CX, CY, SCALE;
+
+function initCanvas() {
+  canvas = document.getElementById('orreryCanvas');
+  if (!canvas) return false;
+  ctx = canvas.getContext('2d');
+  resize();
+  window.addEventListener('resize', resize);
+  return true;
+}
+
+function resize() {
+  var wrap = canvas.parentElement;
+  W = wrap.clientWidth;
+  H = Math.min(W * 0.75, 520);
+  canvas.width = W;
+  canvas.height = H;
+  CX = W / 2;
+  CY = H / 2 + 20;
+  // Scale: Jupiter is ~5.2 AU — fit it with some margin
+  SCALE = (Math.min(W, H) * 0.42) / 5.5;
+  if (dataLoaded) draw();
+}
+
+// ── JPL HORIZONS FETCH ──
+async function fetchVectors(command, label) {
+  var params = new URLSearchParams();
+  params.set('format',     'text');
+  params.set('COMMAND',    command);
+  params.set('OBJ_DATA',   'NO');
+  params.set('MAKE_EPHEM', 'YES');
+  params.set('EPHEM_TYPE', 'VECTORS');
+  params.set('CENTER',     "'500@10'"); // heliocentric (Sun center)
+  params.set('REF_PLANE',  'ECLIPTIC');
+  params.set('REF_SYSTEM', 'J2000');
+  params.set('START_TIME', "'" + FETCH_START + "'");
+  params.set('STOP_TIME',  "'" + FETCH_STOP  + "'");
+  params.set('STEP_SIZE',  "'" + FETCH_STEP  + "'");
+  params.set('OUT_UNITS',  'AU-D');
+  params.set('CSV_FORMAT', 'YES');
+
+  var url = 'https://ssd.jpl.nasa.gov/api/horizons.api?' + params.toString();
+  try {
+    var ctrl = new AbortController();
+    var tid = setTimeout(function(){ ctrl.abort(); }, 20000);
+    var resp = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(tid);
+    var txt = await resp.text();
+    return parseVectors(txt, label);
+  } catch(e) {
+    console.warn('Horizons fetch failed for ' + label + ':', e.message);
+    return null;
+  }
+}
+
+function parseVectors(txt, label) {
+  var lines = txt.split('\n');
+  var inData = false;
+  var points = [];
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i].trim();
+    if (l === '$$SOE') { inData = true; continue; }
+    if (l === '$$EOE') { break; }
+    if (!inData) continue;
+    // CSV format: JDTDB, Cal, X, Y, Z, VX, VY, VZ
+    var cols = l.split(',');
+    if (cols.length < 6) continue;
+    var jd = parseFloat(cols[0]);
+    var x  = parseFloat(cols[2]);
+    var y  = parseFloat(cols[3]);
+    var z  = parseFloat(cols[4]);
+    if (isNaN(jd) || isNaN(x)) continue;
+    var dist = Math.sqrt(x*x + y*y + z*z);
+    // Convert JD to JS Date
+    var t = jdToDate(jd);
+    points.push({ t: t, jd: jd, x: x, y: y, z: z, dist: dist });
+  }
+  console.log('Parsed ' + points.length + ' points for ' + label);
+  return points.length > 0 ? points : null;
+}
+
+function jdToDate(jd) {
+  // JD 2440587.5 = 1970-01-01 00:00:00 UTC
+  return new Date((jd - 2440587.5) * 86400000);
+}
+
+function dateToJD(date) {
+  return date.getTime() / 86400000 + 2440587.5;
+}
+
+// ── INTERPOLATION ──
+function interpolateAt(points, date) {
+  if (!points || points.length < 2) return null;
+  var jd = dateToJD(date);
+  // Binary search
+  var lo = 0, hi = points.length - 1;
+  if (jd <= points[0].jd) return points[0];
+  if (jd >= points[hi].jd) return points[hi];
+  while (hi - lo > 1) {
+    var mid = Math.floor((lo + hi) / 2);
+    if (points[mid].jd <= jd) lo = mid; else hi = mid;
+  }
+  var t = (jd - points[lo].jd) / (points[hi].jd - points[lo].jd);
+  return {
+    x: points[lo].x + t * (points[hi].x - points[lo].x),
+    y: points[lo].y + t * (points[hi].y - points[lo].y),
+    z: points[lo].z + t * (points[hi].z - points[lo].z),
+    dist: points[lo].dist + t * (points[hi].dist - points[lo].dist),
+  };
+}
+
+// ── COORDINATE TRANSFORM ──
+function toScreen(x, y) {
+  return { sx: CX + x * SCALE, sy: CY - y * SCALE }; // flip Y
+}
+
+// ── DRAWING ──
+function draw() {
+  if (!ctx) return;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#020b18';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle star field (static, seeded)
+  drawStars();
+
+  // Sun
+  drawSun();
+
+  // Planet orbits + planets
+  BODIES.forEach(function(b) {
+    if (planetData[b.id]) {
+      drawOrbit(planetData[b.id], b.orbitColor);
+      var pos = interpolateAt(planetData[b.id], simDate);
+      if (pos) drawBody(pos, b);
+    }
+  });
+
+  // Comet trail
+  if (cometPoints.length > 0) {
+    drawCometTrail();
+    var cpos = interpolateAt(cometPoints, simDate);
+    if (cpos) drawComet(cpos);
+  }
+
+  // Key date markers
+  drawKeyMarkers();
+
+  // HUD
+  drawHUD();
+
+  // Axis label
+  ctx.fillStyle = 'rgba(100,180,255,0.2)';
+  ctx.font = '10px system-ui';
+  ctx.fillText('Ecliptic plane (J2000) \u00b7 Heliocentric \u00b7 NASA/JPL Horizons', 12, H - 8);
+}
+
+function drawStars() {
+  var seed = 42;
+  function rng() { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; }
+  ctx.fillStyle = 'rgba(200,220,255,0.6)';
+  for (var i = 0; i < 120; i++) {
+    var sx = rng() * W, sy = rng() * H, sr = rng() * 1.2;
+    ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+function drawSun() {
+  var s = toScreen(0, 0);
+  // Glow
+  var g = ctx.createRadialGradient(s.sx, s.sy, 0, s.sx, s.sy, 28);
+  g.addColorStop(0, 'rgba(255,240,160,0.7)');
+  g.addColorStop(0.4, 'rgba(255,180,60,0.3)');
+  g.addColorStop(1, 'rgba(255,140,0,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(s.sx, s.sy, 28, 0, Math.PI*2); ctx.fill();
+  // Core
+  var g2 = ctx.createRadialGradient(s.sx, s.sy, 0, s.sx, s.sy, 9);
+  g2.addColorStop(0, '#fff8e0');
+  g2.addColorStop(0.5, '#ffd060');
+  g2.addColorStop(1, '#ff9900');
+  ctx.fillStyle = g2;
+  ctx.beginPath(); ctx.arc(s.sx, s.sy, 9, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,220,100,0.7)';
+  ctx.font = '10px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('Sun', s.sx, s.sy + 22);
+  ctx.textAlign = 'left';
+}
+
+function drawOrbit(points, color) {
+  if (!points || points.length < 2) return;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 0.75;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  var first = toScreen(points[0].x, points[0].y);
+  ctx.moveTo(first.sx, first.sy);
+  for (var i = 1; i < points.length; i++) {
+    var s = toScreen(points[i].x, points[i].y);
+    ctx.lineTo(s.sx, s.sy);
+  }
+  ctx.stroke();
+}
+
+function drawBody(pos, body) {
+  var s = toScreen(pos.x, pos.y);
+  // Glow
+  var g = ctx.createRadialGradient(s.sx, s.sy, 0, s.sx, s.sy, body.r * 2.5);
+  g.addColorStop(0, body.color);
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(s.sx, s.sy, body.r * 2.5, 0, Math.PI*2); ctx.fill();
+  // Body
+  ctx.fillStyle = body.color;
+  ctx.beginPath(); ctx.arc(s.sx, s.sy, body.r, 0, Math.PI*2); ctx.fill();
+  // Label
+  ctx.fillStyle = 'rgba(200,230,255,0.7)';
+  ctx.font = '10px system-ui';
+  ctx.fillText(body.name, s.sx + body.r + 3, s.sy + 4);
+}
+
+function drawCometTrail() {
+  // Past trail (behind comet)
+  var simJD = dateToJD(simDate);
+  var pastPts = cometPoints.filter(function(p){ return p.jd <= simJD; });
+  var futurePts = cometPoints.filter(function(p){ return p.jd > simJD; });
+
+  // Future path (dashed)
+  if (futurePts.length > 1) {
+    ctx.strokeStyle = 'rgba(126,200,255,0.2)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 6]);
+    ctx.beginPath();
+    var fp0 = toScreen(futurePts[0].x, futurePts[0].y);
+    ctx.moveTo(fp0.sx, fp0.sy);
+    for (var i = 1; i < futurePts.length; i++) {
+      var fp = toScreen(futurePts[i].x, futurePts[i].y);
+      ctx.lineTo(fp.sx, fp.sy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Past path (solid, fading gradient from comet position backward)
+  if (pastPts.length > 1) {
+    // Draw as segments with opacity fade
+    var maxShow = Math.min(pastPts.length, 30);
+    var startIdx = pastPts.length - maxShow;
+    for (var i = startIdx; i < pastPts.length - 1; i++) {
+      var alpha = 0.1 + 0.6 * ((i - startIdx) / maxShow);
+      ctx.strokeStyle = 'rgba(126,200,255,' + alpha.toFixed(2) + ')';
+      ctx.lineWidth = 0.75 + alpha;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      var a = toScreen(pastPts[i].x, pastPts[i].y);
+      var b = toScreen(pastPts[i+1].x, pastPts[i+1].y);
+      ctx.moveTo(a.sx, a.sy);
+      ctx.lineTo(b.sx, b.sy);
+      ctx.stroke();
+    }
+  }
+}
+
+function drawComet(pos) {
+  var s = toScreen(pos.x, pos.y);
+  var simJD = dateToJD(simDate);
+  var periJD = dateToJD(PERIHELION_DATE);
+  var daysFromPeri = Math.abs(simJD - periJD);
+  var nearPeri = daysFromPeri < 15; // glowing near perihelion
+
+  // Ion tail (points roughly away from Sun)
+  var angle = Math.atan2(-pos.y, -pos.x); // anti-sunward
+  var tailLen = nearPeri ? 40 + 20 * (1 - daysFromPeri/15) : 25;
+  var tg = ctx.createLinearGradient(s.sx, s.sy, s.sx + Math.cos(angle)*tailLen, s.sy + Math.sin(angle)*tailLen);
+  tg.addColorStop(0, 'rgba(126,200,255,0.7)');
+  tg.addColorStop(1, 'rgba(100,160,255,0)');
+  ctx.strokeStyle = tg;
+  ctx.lineWidth = nearPeri ? 3 : 2;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(s.sx, s.sy);
+  ctx.lineTo(s.sx + Math.cos(angle)*tailLen, s.sy + Math.sin(angle)*tailLen);
+  ctx.stroke();
+
+  // Coma glow
+  var glowR = nearPeri ? 18 : 12;
+  var g = ctx.createRadialGradient(s.sx, s.sy, 0, s.sx, s.sy, glowR);
+  g.addColorStop(0, nearPeri ? 'rgba(200,240,255,0.9)' : 'rgba(180,220,255,0.75)');
+  g.addColorStop(0.4, 'rgba(126,200,255,0.4)');
+  g.addColorStop(1, 'rgba(50,120,255,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(s.sx, s.sy, glowR, 0, Math.PI*2); ctx.fill();
+
+  // Nucleus
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath(); ctx.arc(s.sx, s.sy, 3.5, 0, Math.PI*2); ctx.fill();
+
+  // Label
+  ctx.fillStyle = '#7ec8ff';
+  ctx.font = 'bold 11px system-ui';
+  ctx.fillText('R3', s.sx + 6, s.sy - 8);
+
+  // Distance readout
+  ctx.fillStyle = 'rgba(126,200,255,0.6)';
+  ctx.font = '10px system-ui';
+  ctx.fillText(pos.dist.toFixed(3) + ' AU', s.sx + 6, s.sy + 4);
+}
+
+function drawKeyMarkers() {
+  var periJD = dateToJD(PERIHELION_DATE);
+  var earthJD = dateToJD(EARTH_CLOSE_DATE);
+  var simJD = dateToJD(simDate);
+
+  // Perihelion marker
+  var periPos = interpolateAt(cometPoints, PERIHELION_DATE);
+  if (periPos) {
+    var ps = toScreen(periPos.x, periPos.y);
+    ctx.strokeStyle = simJD >= periJD ? 'rgba(245,200,66,0.9)' : 'rgba(245,200,66,0.4)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.arc(ps.sx, ps.sy, 10, 0, Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(245,200,66,0.8)';
+    ctx.font = '10px system-ui';
+    ctx.fillText('Perihelion Apr 19', ps.sx + 12, ps.sy + 4);
+  }
+
+  // Earth closest approach
+  var earPos = interpolateAt(cometPoints, EARTH_CLOSE_DATE);
+  if (earPos) {
+    var es = toScreen(earPos.x, earPos.y);
+    ctx.strokeStyle = simJD >= earthJD ? 'rgba(77,219,138,0.9)' : 'rgba(77,219,138,0.4)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.arc(es.sx, es.sy, 10, 0, Math.PI*2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(77,219,138,0.8)';
+    ctx.font = '10px system-ui';
+    ctx.fillText('Earth closest Apr 26', es.sx + 12, es.sy + 4);
+  }
+}
+
+function drawHUD() {
+  // Date display
+  var dateStr = simDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+  ctx.fillStyle = 'rgba(200,230,255,0.9)';
+  ctx.font = 'bold 14px system-ui';
+  ctx.textAlign = 'right';
+  ctx.fillText(dateStr, W - 14, 24);
+  ctx.textAlign = 'left';
+
+  // Comet stats
+  var pos = interpolateAt(cometPoints, simDate);
+  if (pos) {
+    var simJD = dateToJD(simDate);
+    var periJD = dateToJD(PERIHELION_DATE);
+    var daysDiff = Math.round(simJD - periJD);
+    var periStr = daysDiff === 0 ? 'Perihelion today' : (daysDiff > 0 ? daysDiff + 'd after perihelion' : Math.abs(daysDiff) + 'd to perihelion');
+    ctx.fillStyle = 'rgba(126,200,255,0.8)';
+    ctx.font = '11px system-ui';
+    ctx.textAlign = 'right';
+    ctx.fillText(pos.dist.toFixed(3) + ' AU from Sun', W - 14, 42);
+    ctx.fillText(periStr, W - 14, 58);
+    ctx.textAlign = 'left';
+  }
+
+  // Legend
+  var ly = 18;
+  ctx.fillStyle = 'rgba(200,230,255,0.55)';
+  ctx.font = '10px system-ui';
+  ctx.fillText('C/2025 R3 (PanSTARRS)', 14, ly);
+  ctx.strokeStyle = 'rgba(126,200,255,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([3, 4]);
+  ctx.beginPath(); ctx.moveTo(14, ly + 8); ctx.lineTo(90, ly + 8); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(200,230,255,0.35)';
+  ctx.fillText('Comet path (dashed=future)', 14, ly + 20);
+}
+
+// ── ANIMATION ──
+function animate() {
+  if (!isPlaying) return;
+  var msPerDay = 86400000;
+  simDate = new Date(simDate.getTime() + playSpeed * msPerDay * 1.5);
+  // Clamp to data range
+  var endDate = new Date(FETCH_STOP);
+  var startDate = new Date(FETCH_START);
+  if (simDate > endDate) { simDate = new Date(endDate); isPlaying = false; updatePlayBtn(); }
+  if (simDate < startDate) simDate = new Date(startDate);
+  updateScrubber();
+  draw();
+  animFrame = requestAnimationFrame(animate);
+}
+
+function startPlay() {
+  isPlaying = true;
+  updatePlayBtn();
+  animFrame = requestAnimationFrame(animate);
+}
+
+function pausePlay() {
+  isPlaying = false;
+  updatePlayBtn();
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+}
+
+function updatePlayBtn() {
+  var btn = document.getElementById('orreryPlayBtn');
+  if (btn) btn.textContent = isPlaying ? '\u23F8 Pause' : '\u25B6 Play';
+}
+
+function updateScrubber() {
+  var sc = document.getElementById('orreryScrubber');
+  if (!sc) return;
+  var startMs = new Date(FETCH_START).getTime();
+  var endMs   = new Date(FETCH_STOP).getTime();
+  var pct = (simDate.getTime() - startMs) / (endMs - startMs);
+  sc.value = Math.max(0, Math.min(100, pct * 100));
+}
+
+function scrubberChanged(val) {
+  pausePlay();
+  var startMs = new Date(FETCH_START).getTime();
+  var endMs   = new Date(FETCH_STOP).getTime();
+  simDate = new Date(startMs + (val / 100) * (endMs - startMs));
+  draw();
+}
+
+// ── LOADING ──
+function setOrreryStatus(msg, isError) {
+  var el = document.getElementById('orreryStatus');
+  if (el) {
+    el.textContent = msg;
+    el.style.color = isError ? '#e05a40' : 'rgba(126,200,255,0.7)';
+  }
+}
+
+async function loadAllData() {
+  setOrreryStatus('Fetching comet trajectory from NASA/JPL Horizons\u2026');
+  var cometResult = await fetchVectors(COMET.id, 'Comet R3');
+  if (!cometResult) {
+    setOrreryStatus('JPL Horizons unavailable \u2014 using fallback orbital data', true);
+    cometPoints = generateFallbackComet();
+  } else {
+    cometPoints = cometResult;
+  }
+
+  setOrreryStatus('Fetching planet positions\u2026');
+  var loaded = 0;
+  for (var i = 0; i < BODIES.length; i++) {
+    var b = BODIES[i];
+    var result = await fetchVectors("'" + b.id + "'", b.name);
+    if (result) {
+      planetData[b.id] = result;
+      loaded++;
+    } else {
+      // Use analytical Keplerian orbit as fallback
+      planetData[b.id] = generateKeplerOrbit(b.id);
+    }
+    setOrreryStatus('Loaded ' + (i+1) + '/' + BODIES.length + ' bodies\u2026');
+  }
+
+  dataLoaded = true;
+  simDate = new Date(TODAY);
+  draw();
+  updateScrubber();
+  setOrreryStatus('NASA/JPL Horizons \u00b7 Heliocentric ecliptic J2000 \u00b7 Live data');
+}
+
+// ── FALLBACK: Keplerian orbital elements (approximate, for API failure) ──
+// Semi-major axes in AU, periods in days, inclination ignored for 2D
+var KEPLER = {
+  '199': { a: 0.387, T: 87.97,  e: 0.206 },
+  '299': { a: 0.723, T: 224.70, e: 0.007 },
+  '399': { a: 1.000, T: 365.25, e: 0.017 },
+  '499': { a: 1.524, T: 686.97, e: 0.093 },
+  '599': { a: 5.203, T: 4332.6, e: 0.049 },
+};
+
+function generateKeplerOrbit(id) {
+  var k = KEPLER[id];
+  if (!k) return [];
+  var pts = [];
+  var startMs = new Date(FETCH_START).getTime();
+  var endMs   = new Date(FETCH_STOP).getTime();
+  var step = 4 * 86400000; // 4 days in ms
+  var t0 = startMs;
+  // Reference: Earth at vernal equinox 2026 roughly at (1, 0)
+  // Approximate mean longitude offsets (degrees at J2000)
+  var L0 = { '199':252.25, '299':181.98, '399':100.46, '499':355.45, '599':34.40 };
+  var l0 = (L0[id] || 0) * Math.PI / 180;
+  for (var ms = startMs; ms <= endMs; ms += step) {
+    var dt = (ms - 1451545000000) / 86400000; // days since J2000.0 (2000-Jan-1.5)
+    var M  = l0 + (2 * Math.PI / k.T) * dt;   // mean anomaly (approx)
+    // Solve Kepler's equation (simplified: E ≈ M + e*sin(M))
+    var E  = M + k.e * Math.sin(M);
+    var x  = k.a * (Math.cos(E) - k.e);
+    var y  = k.a * Math.sqrt(1 - k.e*k.e) * Math.sin(E);
+    var dist = Math.sqrt(x*x + y*y);
+    pts.push({ t: new Date(ms), jd: dateToJD(new Date(ms)), x: x, y: y, z: 0, dist: dist });
+  }
+  return pts;
+}
+
+function generateFallbackComet() {
+  // Approximate hyperbolic orbit for R3: perihelion 0.499 AU, e~1.0006, ω~290°, Ω~3°, i~75°
+  // Project to ecliptic plane (rough)
+  var pts = [];
+  var startMs = new Date(FETCH_START).getTime();
+  var endMs   = new Date(FETCH_STOP).getTime();
+  var step = 4 * 86400000;
+  var periMs = PERIHELION_DATE.getTime();
+  var q = 0.499; // perihelion distance AU
+  var e = 1.0006; // slightly hyperbolic
+  var mu = 0.01720209895 * 0.01720209895; // GM_sun in AU^3/d^2
+  // Approach vector: perihelion near ecliptic longitude ~270° projected
+  var omegaRad = 290 * Math.PI / 180; // argument of perihelion
+  var OmegaRad = 3  * Math.PI / 180;  // longitude ascending node
+  var incRad   = 75 * Math.PI / 180;  // inclination
+  for (var ms = startMs; ms <= endMs; ms += step) {
+    var dt = (ms - periMs) / 86400000; // days from perihelion
+    // Solve hyperbolic/parabolic: Barker's equation approximation
+    var M = Math.sqrt(mu / (q*q*q)) * dt; // approx mean anomaly
+    // Parabolic position angle approximation (Barker):
+    var W = 3 * M;
+    var G = W / 2;
+    var H = Math.cbrt(G + Math.sqrt(G*G + 1));
+    var tanV2 = H - 1/H;
+    var nu = 2 * Math.atan(tanV2); // true anomaly
+    var r = q * (1 + e) / (1 + e * Math.cos(nu));
+    // Perifocal coords
+    var xp = r * Math.cos(nu);
+    var yp = r * Math.sin(nu);
+    // Rotate to ecliptic
+    var cosO = Math.cos(OmegaRad), sinO = Math.sin(OmegaRad);
+    var coso = Math.cos(omegaRad), sino = Math.sin(omegaRad);
+    var cosI = Math.cos(incRad);
+    var x = (cosO*coso - sinO*sino*cosI)*xp + (-cosO*sino - sinO*coso*cosI)*yp;
+    var y = (sinO*coso + cosO*sino*cosI)*xp + (-sinO*sino + cosO*coso*cosI)*yp;
+    var dist = Math.sqrt(x*x + y*y);
+    pts.push({ t: new Date(ms), jd: dateToJD(new Date(ms)), x: x, y: y, z: 0, dist: dist });
+  }
+  return pts;
+}
+
+// ── PUBLIC INIT ──
+window.initOrrery = function() {
+  if (!initCanvas()) { console.warn('Orrery canvas not found'); return; }
+
+  // Play/Pause
+  var playBtn = document.getElementById('orreryPlayBtn');
+  if (playBtn) playBtn.onclick = function() { if (isPlaying) pausePlay(); else startPlay(); };
+
+  // Speed
+  var speedSel = document.getElementById('orrerySpeed');
+  if (speedSel) speedSel.onchange = function() { playSpeed = parseFloat(this.value); };
+
+  // Today button
+  var todayBtn = document.getElementById('orreryTodayBtn');
+  if (todayBtn) todayBtn.onclick = function() { pausePlay(); simDate = new Date(TODAY); updateScrubber(); draw(); };
+
+  // Perihelion button
+  var periBtn = document.getElementById('orreryPeriBtn');
+  if (periBtn) periBtn.onclick = function() { pausePlay(); simDate = new Date(PERIHELION_DATE); updateScrubber(); draw(); };
+
+  // Scrubber
+  var sc = document.getElementById('orreryScrubber');
+  if (sc) {
+    sc.oninput = function() { scrubberChanged(parseFloat(this.value)); };
+  }
+
+  // Draw loading state immediately
+  draw();
+  setOrreryStatus('Connecting to NASA/JPL Horizons\u2026');
+
+  // Load data
+  loadAllData();
+};
+
+})(); // end IIFE
+
+
+// Init orrery when DOM ready
+if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",window.initOrrery);}else{window.initOrrery();}
 </script>
 </body>
 </html>
